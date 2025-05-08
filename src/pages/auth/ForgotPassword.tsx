@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { forgotPassword } from '../services/auth';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr('⚠️Under construction⚠️');
-    // try {
-    //   const res = await forgotPassword({ email });
-    //   setMsg(res.status);
-    //   setErr(null);
-    // } catch (error: any) {
-    //   setErr(error.response?.data?.email || 'Failed to send reset link');
-    //   setMsg(null);
-    // }
   };
 
   return (
@@ -43,11 +32,6 @@ export default function ForgotPasswordPage() {
               {err && (
                 <p className='my-2 text-sm text-red-600' id='email-error'>
                   {err}
-                </p>
-              )}
-              {msg && (
-                <p className='my-2 text-sm text-green-600' id='email-success'>
-                  {msg}
                 </p>
               )}
               <button type='submit' className='flex w-full justify-center rounded-md bg-sky-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600'>
