@@ -1,20 +1,10 @@
+import type { PaginationMeta } from '@/types';
 import { useState, useEffect } from 'react';
 
 export interface PaginationLink {
   url: string | null;
   label: string;
   active: boolean;
-}
-
-export interface PaginationMeta {
-  current_page: number;
-  from: number;
-  to: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  path: string;
-  links: PaginationLink[];
 }
 
 export interface PaginatedResult<T> {

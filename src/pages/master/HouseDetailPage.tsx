@@ -2,7 +2,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, type FormEvent } from 'react';
 import { useHouseDetail } from '@/features/house/hooks/useHouseDetail';
-import type { PaymentEntry, ResidentHistoryEntry } from '@/features/house/house';
+import type { PaymentEntry, ResidentHistoryEntry } from '@/types';
+// import type { PaymentEntry, ResidentHistoryEntry } from '@/features/house/house';
 
 export default function HouseDetailPage() {
   const { id } = useParams<{ id: string }>();

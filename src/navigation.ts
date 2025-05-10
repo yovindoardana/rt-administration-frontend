@@ -1,4 +1,4 @@
-import { HomeIcon, UsersIcon, CalendarIcon, Square2StackIcon, Squares2X2Icon, ClockIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, UsersIcon, CalendarIcon, Squares2X2Icon, ClockIcon } from '@heroicons/react/24/outline';
 
 // Pages
 import DashboardPage from './pages/DashboardPage';

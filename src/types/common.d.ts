@@ -9,12 +9,12 @@ export interface PaginationLinks {
 
 export interface PaginationMeta {
   current_page: number;
-  from?: number;
+  from: number;
   last_page: number;
-  links?: Array<{ url: string | null; label: string; active: boolean }>;
-  path?: string;
+  links: Array<{ url: string | null; label: string; active: boolean }>;
+  path: string;
   per_page: number;
-  to?: number;
+  to: number;
   total: number;
 }
 

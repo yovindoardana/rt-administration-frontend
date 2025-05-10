@@ -13,23 +13,18 @@ export default function HousesPage() {
   const createMut = useCreateHouse();
   const updateMut = useUpdateHouse();
 
-  // buka modal untuk create
   const openCreate = () => {
     setEditingHouse(null);
     setFormOpen(true);
   };
-  // submit create
   const handleCreate = (vals: CreateHousePayload) => createMut.mutate(vals, { onSuccess: () => setFormOpen(false) });
 
-  // buka modal untuk edit
   const openEdit = useCallback((h: House) => {
     setEditingHouse(h);
     setFormOpen(true);
   }, []);
-  // submit update
   const handleUpdate = (vals: CreateHousePayload) => editingHouse && updateMut.mutate({ id: editingHouse.id, data: vals }, { onSuccess: () => setFormOpen(false) });
 
-  // loading & error tunggal
   const isLoading = createMut.isPending || updateMut.isPending;
   const error = createMut.error ?? updateMut.error ?? undefined;
 
