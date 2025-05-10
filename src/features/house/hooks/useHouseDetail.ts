@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getHouseDetail, getPayments, addOccupant, endOccupant, createPayment, updatePayment } from '@/services/house';
-import type { HouseDetail, PaymentEntry } from '@/types/house';
+import { getHouseDetail, getPayments, addOccupant, endOccupant, createPayment, updatePayment } from '@/features/house/services/house';
+import type { HouseDetail, PaymentEntry } from '@/features/house/house';
 
 export function useHouseDetail(id: number) {
   const [house, setHouse] = useState<HouseDetail | null>(null);

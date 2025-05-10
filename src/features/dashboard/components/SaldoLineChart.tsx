@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
-import type { DashboardData } from '@/types/dashboard';
+import type { DashboardData } from '@/features/dashboard/dashboard';
 
 interface Props {
   data: DashboardData['balances'];

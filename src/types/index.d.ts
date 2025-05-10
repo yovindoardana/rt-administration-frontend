@@ -1,2 +1,2 @@
 export * from './sidebar';
-export * from './house';
+export * from '../features/house/house';

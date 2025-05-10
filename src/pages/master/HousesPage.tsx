@@ -1,4 +1,4 @@
-import { HouseTable } from '@/features/house/HouseTable';
+import { HouseTable } from '@/features/house/components/HouseTable';
 
 export default function HousesPage() {
   return (

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import Header from '@/features/dashboard/Header';
-import StatCard from '@/features/dashboard/StatCard';
-import ChartCard from '@/features/dashboard/ChartCard';
-import IuranPengeluaranChart from '@/features/dashboard/IuranPengeluaranChart';
-import SaldoLineChart from '@/features/dashboard/SaldoLineChart';
-import TableCard from '@/features/dashboard/TableCard';
-import QuickActions from '@/features/dashboard/QuickActions';
-import Notifications from '@/features/dashboard/Notifications';
-import type { DashboardData } from '@/types/dashboard';
-import { getDashboardData } from '@/services/dashboard';
+import Header from '@/features/dashboard/components/Header';
+import StatCard from '@/features/dashboard/components/StatCard';
+import ChartCard from '@/features/dashboard/components/ChartCard';
+import IuranPengeluaranChart from '@/features/dashboard/components/IuranPengeluaranChart';
+import SaldoLineChart from '@/features/dashboard/components/SaldoLineChart';
+import TableCard from '@/features/dashboard/components/TableCard';
+import QuickActions from '@/features/dashboard/components/QuickActions';
+import Notifications from '@/features/dashboard/components/Notifications';
+import type { DashboardData } from '@/features/dashboard/dashboard';
+import { getDashboardData } from '@/features/dashboard/services/dashboard';
 
 const DashboardPage: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);

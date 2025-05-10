@@ -1,5 +1,8 @@
-import api from './api';
-import type { Resident, ResidentsResponse } from '../types/resident';
+// import api from './api';
+// import type { Resident, ResidentsResponse } from '../features/resident/resident';
+
+import api from '@/services/api';
+import type { Resident, ResidentsResponse } from '../resident';
 
 export const fetchResidents = (page = 1) => api.get<ResidentsResponse>(`/api/residents?page=${page}`);
 export const fetchResident = (id: number) => api.get<Resident>(`/api/residents/${id}`);

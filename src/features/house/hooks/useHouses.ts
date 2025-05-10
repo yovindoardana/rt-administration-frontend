@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getHouses } from '@/services/house';
-import type { House, HousesResponse, PaginationMeta } from '@/types/house';
+import { getHouses } from '@/features/house/services/house';
+import type { House, HousesResponse, PaginationMeta } from '@/features/house/house';
 
 export function useHouses(initialPage = 1) {
   const [page, setPage] = useState<number>(initialPage);

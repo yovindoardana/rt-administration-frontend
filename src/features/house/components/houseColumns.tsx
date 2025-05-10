@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import type { House } from '@/types/house';
+import type { House } from '@/features/house/house';
 
 export const houseColumns: ColumnDef<House>[] = [
   { accessorKey: 'house_number', header: 'No. Rumah' },

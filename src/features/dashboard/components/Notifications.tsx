@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Overdue, Agenda } from '@/types/dashboard';
+import type { Overdue, Agenda } from '@/features/dashboard/dashboard';
 
 interface Props {
   overdues: Overdue[];

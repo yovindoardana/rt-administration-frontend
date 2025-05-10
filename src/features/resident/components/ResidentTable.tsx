@@ -1,7 +1,7 @@
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { Resident } from '../../types/resident';
-import { useResidents } from '@/hooks/useResident';
+import type { Resident } from '../resident';
+import { useResidents } from '../hooks/useResident';
 
 const residentColumns: ColumnDef<Resident>[] = [
   { accessorKey: 'full_name', header: 'Nama Lengkap' },

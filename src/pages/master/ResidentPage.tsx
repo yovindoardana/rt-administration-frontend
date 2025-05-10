@@ -1,4 +1,4 @@
-import { ResidentTable } from '@/features/resident/ResidentTable';
+import { ResidentTable } from '@/features/resident/components/ResidentTable';
 
 export default function ResidentsPage() {
   return (

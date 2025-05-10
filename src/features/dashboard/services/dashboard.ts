@@ -1,5 +1,5 @@
-import api from './api';
-import type { DashboardData } from '@/types/dashboard';
+import type { DashboardData } from '@/features/dashboard/dashboard';
+import api from '@/services/api';
 
 export const getDashboardData = async (year?: number, month?: number): Promise<DashboardData> => {
   const params: Record<string, number> = {};

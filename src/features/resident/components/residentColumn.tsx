@@ -1,5 +1,5 @@
+import type { Resident } from '@/features/resident/resident';
 import { type ColumnDef } from '@tanstack/react-table';
-import type { Resident } from '../../types/resident';
 
 export const residentColumns: ColumnDef<Resident>[] = [
   {

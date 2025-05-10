@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useReactTable, getCoreRowModel, type CellContext, type ColumnDef } from '@tanstack/react-table';
 import { Table } from '@/components/ui/Table';
-import { useHouses } from '@/hooks/useHouses';
+import { useHouses } from '@/features/house/hooks/useHouses';
 import { houseColumns } from './houseColumns';
-import type { House } from '@/types/house';
+import type { House } from '@/features/house/house';
 import { useNavigate } from 'react-router-dom';
 
 interface HouseTableProps {
