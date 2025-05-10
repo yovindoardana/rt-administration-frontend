@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
-import { SidebarContent } from './SidebarContent';
 import type { SidebarProps } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { SidebarContent } from '../layout/SidebarContent';
 
 export function Sidebar({ sections, logoSrc, sidebarOpen, onClose }: SidebarProps) {
   const { logout } = useAuth();

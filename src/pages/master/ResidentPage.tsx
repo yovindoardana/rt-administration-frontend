@@ -1,5 +1,4 @@
-import React from 'react';
-import { ResidentTable } from '@/components/resident/ResidentTable';
+import { ResidentTable } from '@/features/resident/ResidentTable';
 
 export default function ResidentsPage() {
   return (

@@ -1,5 +1,5 @@
 import api from '@/services/api';
-import type { House, HouseDetail, ResidentHistoryEntry, PaymentEntry } from '@/types/house';
+import type { ResidentHistoryEntry, PaymentEntry, House, HouseDetail } from '@/types';
 
 export const getHouses = (page = 1) => api.get<{ data: House[]; meta: any }>('/api/houses', { params: { page } }).then((res) => res.data);
 
@@ -17,14 +17,6 @@ export const endOccupant = (houseId: number, historyId: number, payload: { end_d
 
 export const getPayments = (houseId: number) => api.get<{ data: PaymentEntry[] }>(`/api/houses/${houseId}/payments`).then((res) => res.data.data);
 
-export const createPayment = (
-  houseId: number,
-  payload: {
-    resident_id: number;
-    amount: number;
-    payment_date: string;
-    status: 'paid' | 'unpaid';
-  }
-) => api.post<{ data: PaymentEntry }>(`/api/houses/${houseId}/payments`, payload).then((res) => res.data.data);
+export const createPayment = (houseId: number, payload: { resident_id: number; amount: number; payment_date: string; status: 'paid' | 'unpaid' }) => api.post<{ data: PaymentEntry }>(`/api/houses/${houseId}/payments`, payload).then((res) => res.data.data);
 
 export const updatePayment = (houseId: number, paymentId: number, payload: { status: 'paid' | 'unpaid' }) => api.put<{ data: PaymentEntry }>(`/api/houses/${houseId}/payments/${paymentId}`, payload).then((res) => res.data.data);

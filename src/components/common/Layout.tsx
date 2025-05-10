@@ -1,8 +1,7 @@
-// Layout.tsx
 import { useState } from 'react';
 import { Bars3Icon } from '@heroicons/react/24/outline';
-import { Sidebar } from './layout/Sidebar';
-import type { Section } from '../types';
+import type { Section } from '../../types';
+import { Sidebar } from './Sidebar';
 
 interface LayoutProps {
   sections: Section[];

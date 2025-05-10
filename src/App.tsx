@@ -1,7 +1,7 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import navigation, { type NavRoute } from './navigation';
 import RequireAuth from './components/RequireAuth';
-import Layout from './components/Layout';
+import Layout from './components/common/Layout';
 import PublicRoute from './components/PublicRoute';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -11,8 +11,10 @@ import ResetPasswordPage from './pages/auth/ResetPassword';
 export default function App() {
   const location = useLocation();
 
+  const visibleRoutes = navigation.filter((route) => !route.hideInNav);
+
   const sections = Array.from(
-    navigation.reduce((map, route) => {
+    visibleRoutes.reduce((map, route) => {
       const key = route.section ?? 'Main';
       if (!map.has(key)) map.set(key, [] as NavRoute[]);
       map.get(key)!.push(route);

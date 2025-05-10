@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Header from '@/components/dashboard/Header';
-import StatCard from '@/components/dashboard/StatCard';
-import ChartCard from '@/components/dashboard/ChartCard';
-import IuranPengeluaranChart from '@/components/dashboard/IuranPengeluaranChart';
-import SaldoLineChart from '@/components/dashboard/SaldoLineChart';
-import TableCard from '@/components/dashboard/TableCard';
-import QuickActions from '@/components/dashboard/QuickActions';
-import Notifications from '@/components/dashboard/Notifications';
+import Header from '@/features/dashboard/Header';
+import StatCard from '@/features/dashboard/StatCard';
+import ChartCard from '@/features/dashboard/ChartCard';
+import IuranPengeluaranChart from '@/features/dashboard/IuranPengeluaranChart';
+import SaldoLineChart from '@/features/dashboard/SaldoLineChart';
+import TableCard from '@/features/dashboard/TableCard';
+import QuickActions from '@/features/dashboard/QuickActions';
+import Notifications from '@/features/dashboard/Notifications';
 import type { DashboardData } from '@/types/dashboard';
 import { getDashboardData } from '@/services/dashboard';
 
@@ -23,7 +23,7 @@ const DashboardPage: React.FC = () => {
 
   const { user, stats, annual, balances, recent, overdues, agendas } = data;
 
-  console.log(data)
+  console.log(data);
 
   return (
     <div className='space-y-6 p-6'>

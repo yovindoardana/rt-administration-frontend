@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "depcheck": "depcheck --ignores=\"**/*.{test,spec}.{js,ts,tsx}\""
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
@@ -27,6 +28,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react-swc": "^3.9.0",
+    "depcheck": "^1.4.7",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

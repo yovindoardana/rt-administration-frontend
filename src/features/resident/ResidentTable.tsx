@@ -1,10 +1,8 @@
-import React from 'react';
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { Resident } from '../../types/resident';
 import { useResidents } from '@/hooks/useResident';
 
-// 1. Definisi kolom sesuai field baru
 const residentColumns: ColumnDef<Resident>[] = [
   { accessorKey: 'full_name', header: 'Nama Lengkap' },
   { accessorKey: 'id_card', header: 'No. KTP', cell: (info) => info.getValue() ?? '-' },
@@ -39,19 +37,16 @@ const residentColumns: ColumnDef<Resident>[] = [
 export function ResidentTable() {
   const { page, setPage, residents, links, meta, loading, error } = useResidents();
 
-  // 2. Inisiasi hook table **di top level**, pakai fallback `[]`
   const table = useReactTable({
     data: residents,
     columns: residentColumns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // 3. Handling loading / error / empty
   if (loading) return <div>Loading…</div>;
   if (error) return <div className='text-red-600'>Error: {error}</div>;
   if (residents.length === 0) return <div>Tidak ada penghuni.</div>;
 
-  // 4. Render table
   return (
     <>
       <table className='min-w-full divide-y divide-gray-200'>
