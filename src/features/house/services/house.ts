@@ -1,10 +1,10 @@
 import api from '@/services/api';
-import type { House, HouseDetail, HousesResponse, PaymentEntry, ResidentHistoryEntry } from '@/types';
+import type { CreateHousePayload, House, HouseDetail, HousesResponse, PaymentEntry, ResidentHistoryEntry } from '@/types';
 
 export const getHouses = (page = 1) => api.get<HousesResponse>('/api/houses', { params: { page } }).then((res) => res.data);
 export const getHouse = (id: number) => api.get<{ data: HouseDetail }>(`/api/houses/${id}`).then((res) => res.data.data);
-export const createHouse = (payload: Omit<House, 'id' | 'created_at' | 'updated_at'>) => api.post<{ data: House }>('/api/houses', payload).then((res) => res.data.data);
-export const updateHouse = (id: number, payload: Partial<Omit<House, 'id' | 'created_at' | 'updated_at'>>) => api.put<{ data: House }>(`/api/houses/${id}`, payload).then((res) => res.data.data);
+export const createHouse = (payload: CreateHousePayload): Promise<House> => api.post<{ data: House }>('/api/houses', payload).then((res) => res.data.data);
+export const updateHouse = (id: number, payload: CreateHousePayload): Promise<House> => api.patch<{ data: House }>(`/api/houses/${id}`, payload).then((r) => r.data.data);
 export const deleteHouse = (id: number) => api.delete(`/api/houses/${id}`);
 
 export const addOccupant = (houseId: number, payload: { resident_id: number; start_date: string }) => api.post<{ data: ResidentHistoryEntry }>(`/api/houses/${houseId}/occupants`, payload).then((res) => res.data.data);

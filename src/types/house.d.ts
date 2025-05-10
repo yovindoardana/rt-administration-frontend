@@ -5,7 +5,7 @@ import type { PaymentEntry } from './payment';
 export interface House {
   id: number;
   house_number: string;
-  status: 'occupied' | 'vacant' | string;
+  status: 'vacant' | 'occupied';
   created_at: string;
   updated_at: string;
 }
@@ -21,10 +21,9 @@ export type HousesResponse = PaginatedResponse<House>;
 export interface HouseDetailResponse {
   data: HouseDetail;
 }
-
-// payloads
 export interface CreateHousePayload {
   house_number: string;
-  status: string;
+  status: 'vacant' | 'occupied';
 }
+
 export type UpdateHousePayload = Partial<CreateHousePayload>;

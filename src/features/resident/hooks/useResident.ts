@@ -1,4 +1,3 @@
-// import { usePaginated } from './usePaginated';
 import { getResidents } from '@/features/resident/services/resident';
 import { usePaginated } from '@/hooks/usePaginated';
 import type { Resident, ResidentsResponse } from '@/types/resident';

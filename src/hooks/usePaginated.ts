@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 
+export interface PaginationLink {
+  url: string | null;
+  label: string;
+  active: boolean;
+}
+
 export interface PaginationMeta {
   current_page: number;
+  from: number;
+  to: number;
   last_page: number;
   per_page: number;
   total: number;
+  path: string;
+  links: PaginationLink[];
 }
+
 export interface PaginatedResult<T> {
   data: T[];
   meta: PaginationMeta;
@@ -17,7 +28,7 @@ export interface PaginatedResult<T> {
 export function usePaginated<T, R>(fetcher: (page: number) => Promise<R>, selector: (res: R) => PaginatedResult<T>, initialPage = 1) {
   const [page, setPage] = useState(initialPage);
   const [items, setItems] = useState<T[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta>({ current_page: 1, last_page: 1, per_page: 0, total: 0 });
+  const [meta, setMeta] = useState<PaginationMeta>({ current_page: 1, from: 0, to: 0, last_page: 1, per_page: 0, total: 0, path: '', links: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
