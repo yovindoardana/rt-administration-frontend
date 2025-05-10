@@ -3,6 +3,7 @@ import { HomeIcon, UsersIcon, FolderIcon, CalendarIcon, DocumentDuplicateIcon, C
 // Pages
 import DashboardPage from './pages/DashboardPage';
 import HousesPage from './pages/master/HousesPage';
+import ResidentPage from './pages/master/ResidentPage';
 
 export interface NavRoute {
   name: string;
@@ -15,7 +16,7 @@ export interface NavRoute {
 const navigation: NavRoute[] = [
   { name: 'Dashboard', path: '/', icon: HomeIcon, element: DashboardPage },
   { name: 'Rumah', path: '/houses', icon: HomeIcon, element: HousesPage, section: 'Master Data' },
-  //   { name: 'Penghuni', path: '/residents', icon: UsersIcon, element: ResidentsPage, section: 'Master Data' },
+  { name: 'Penghuni', path: '/residents', icon: UsersIcon, element: ResidentPage, section: 'Master Data' },
   //   { name: 'Riwayat', path: '/histories', icon: FolderIcon, element: HistoryPage, section: 'Master Data' },
   //   { name: 'Iuran', path: '/payments', icon: CalendarIcon, element: PaymentsPage, section: 'Transaksi' },
   //   { name: 'Pengeluaran', path: '/expenses', icon: DocumentDuplicateIcon, element: ExpensesPage, section: 'Transaksi' },
