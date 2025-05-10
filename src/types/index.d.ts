@@ -1,2 +1,6 @@
 export * from './sidebar';
-export * from '../features/house/house';
+export * from './common';
+export * from './resident';
+export * from './house';
+export * from './occupant';
+export * from './payment';

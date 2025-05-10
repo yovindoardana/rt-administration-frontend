@@ -1,37 +1,36 @@
 import { useMemo } from 'react';
-import { useReactTable, getCoreRowModel, type CellContext, type ColumnDef } from '@tanstack/react-table';
+import { useReactTable, getCoreRowModel, type ColumnDef, type CellContext } from '@tanstack/react-table';
 import { Table } from '@/components/ui/Table';
-import { useHouses } from '@/features/house/hooks/useHouses';
 import { houseColumns } from './houseColumns';
-import type { House } from '@/features/house/house';
-import { useNavigate } from 'react-router-dom';
+import { useHouses } from '../hooks/useHouses';
+import type { House } from '@/types';
 
-interface HouseTableProps {
+interface Props {
   onView?: (id: number) => void;
 }
 
-export function HouseTable({ onView }: HouseTableProps) {
-  const { page, setPage, houses, meta, loading, error } = useHouses();
-  const navigate = useNavigate();
+export function HouseTable({ onView }: Props) {
+  const { items: houses, meta, page, setPage, loading, error } = useHouses();
 
-  const columns = useMemo<ColumnDef<House, any>[]>(() => {
-    return houseColumns.map((col) => {
-      if (col.id === 'actions') {
-        return {
-          ...col,
-          cell: (info: CellContext<House, number>) => {
-            const id = info.getValue();
-            return (
-              <button onClick={() => navigate(`/houses/${id}`)} className='text-blue-600 hover:underline'>
-                View
-              </button>
-            );
-          },
-        };
-      }
-      return col;
-    });
-  }, [onView]);
+  const columns = useMemo<ColumnDef<House, any>[]>(
+    () =>
+      houseColumns.map((col) =>
+        col.id === 'actions'
+          ? {
+              ...col,
+              cell: (ctx: CellContext<House, number>) => {
+                const id = ctx.getValue();
+                return (
+                  <button onClick={() => onView?.(id)} className='text-blue-600 hover:underline'>
+                    View
+                  </button>
+                );
+              },
+            }
+          : col
+      ),
+    [onView]
+  );
 
   const table = useReactTable<House>({
     data: houses,
@@ -46,7 +45,6 @@ export function HouseTable({ onView }: HouseTableProps) {
   return (
     <>
       <Table table={table} />
-
       <div className='flex items-center justify-between mt-4'>
         <button onClick={() => setPage(page - 1)} disabled={page <= 1} className='px-3 py-1 border rounded disabled:opacity-50'>
           Prev

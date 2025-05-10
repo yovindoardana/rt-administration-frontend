@@ -1,4 +1,4 @@
-import { HomeIcon, UsersIcon, FolderIcon, CalendarIcon, DocumentDuplicateIcon, ChartPieIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, UsersIcon, CalendarIcon, Square2StackIcon, Squares2X2Icon, ClockIcon } from '@heroicons/react/24/outline';
 
 // Pages
 import DashboardPage from './pages/DashboardPage';
@@ -6,6 +6,7 @@ import HousesPage from './pages/master/HousesPage';
 import ResidentPage from './pages/master/ResidentPage';
 import HouseDetailPage from './pages/master/HouseDetailPage';
 import OccupantsPage from './pages/master/OccupantsPage';
+import PaymentsPage from './pages/master/PaymentPage';
 
 export interface NavRoute {
   name: string;
@@ -17,7 +18,7 @@ export interface NavRoute {
 }
 
 const navigation: NavRoute[] = [
-  { name: 'Dashboard', path: '/', icon: HomeIcon, element: DashboardPage },
+  { name: 'Dashboard', path: '/', icon: Squares2X2Icon, element: DashboardPage },
   // Houses
   { name: 'Rumah', path: '/houses', icon: HomeIcon, element: HousesPage, section: 'Master Data' },
   { name: 'Detail Rumah', path: '/houses/:id', icon: HomeIcon, element: HouseDetailPage, section: 'Master Data', hideInNav: true },
@@ -28,7 +29,10 @@ const navigation: NavRoute[] = [
   { name: 'Penghuni', path: '/residents', icon: UsersIcon, element: ResidentPage, section: 'Master Data' },
 
   // Occupants
-  { name: 'Riwayat Penghunian', path: '/occupants', icon: HomeIcon, element: OccupantsPage, section: 'Master Data' },
+  { name: 'Riwayat Penghunian', path: '/occupants', icon: ClockIcon, element: OccupantsPage, section: 'Master Data' },
+
+  // Payments
+  { name: 'Pembayaran', path: '/payments', icon: CalendarIcon, element: PaymentsPage, section: 'Master Data' },
   //   { name: 'Riwayat', path: '/histories', icon: FolderIcon, element: HistoryPage, section: 'Master Data' },
   //   { name: 'Iuran', path: '/payments', icon: CalendarIcon, element: PaymentsPage, section: 'Transaksi' },
   //   { name: 'Pengeluaran', path: '/expenses', icon: DocumentDuplicateIcon, element: ExpensesPage, section: 'Transaksi' },

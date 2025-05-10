@@ -1,40 +1,26 @@
-import type { Resident } from '@/features/resident/resident';
-import { type ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { Resident } from '@/types/resident';
 
 export const residentColumns: ColumnDef<Resident>[] = [
+  { accessorKey: 'full_name', header: 'Nama Lengkap' },
+  { accessorKey: 'residency_status', header: 'Status Tinggal' },
+  { accessorKey: 'phone_number', header: 'No. Telepon' },
+  { accessorKey: 'marital_status', header: 'Status Pernikahan' },
   {
-    accessorKey: 'full_name',
-    header: 'Nama Lengkap',
-  },
-  {
-    accessorKey: 'phone',
-    header: 'Telepon',
-    cell: (info) => info.getValue() ?? '-',
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: (info) => info.getValue() ?? '-',
-  },
-  {
-    accessorKey: 'created_at',
-    header: 'Dibuat Pada',
-    cell: (info) => new Date(info.getValue() as string).toLocaleDateString(),
-  },
-  {
-    accessorFn: (row) => row.id,
     id: 'actions',
     header: 'Aksi',
-    cell: (info) => {
-      const id = info.getValue<number>();
+    accessorFn: (row) => row.id,
+    cell: (ctx) => {
+      const id = ctx.getValue();
       return (
         <div className='flex space-x-2'>
-          <a href={`/residents/${id}`} className='text-blue-600 hover:underline'>
+          <button
+            onClick={() => {
+              /* nanti override di table */
+            }}
+            className='text-blue-600 hover:underline'>
             View
-          </a>
-          <a href={`/residents/${id}/edit`} className='text-green-600 hover:underline'>
-            Edit
-          </a>
+          </button>
         </div>
       );
     },

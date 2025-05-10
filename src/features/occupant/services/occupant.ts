@@ -1,12 +1,9 @@
 // src/features/occupant/services/occupant.ts
 import api from '@/services/api';
-import type { OccupantsResponse, ResidentHistoryEntry } from '../types';
+import type { OccupantsResponse, ResidentHistoryEntry, CreateOccupantPayload, UpdateOccupantPayload } from '@/types/occupant';
 
-/** Fetch paginated occupant history */
-export const getOccupants = (page = 1) => api.get<OccupantsResponse>('/api/resident-house-histories', { params: { page } });
+export const getOccupants = (page = 1) => api.get<OccupantsResponse>('/api/resident-house-histories', { params: { page } }).then((res) => res.data);
 
-/** Tambah occupant baru */
-export const addOccupant = (payload: { house_id: number; resident_id: number; start_date: string }) => api.post<{ data: ResidentHistoryEntry }>('/resident-house-histories', payload);
+export const addOccupant = (payload: CreateOccupantPayload) => api.post<{ data: ResidentHistoryEntry }>('/api/resident-house-histories', payload).then((res) => res.data.data);
 
-/** Akhiri occupant (set end_date) */
-export const endOccupant = (id: number, payload: { end_date: string }) => api.put<{ data: ResidentHistoryEntry }>(`/resident-house-histories/${id}`, payload);
+export const endOccupant = (id: number, payload: UpdateOccupantPayload) => api.put<{ data: ResidentHistoryEntry }>(`/api/resident-house-histories/${id}`, payload).then((res) => res.data.data);

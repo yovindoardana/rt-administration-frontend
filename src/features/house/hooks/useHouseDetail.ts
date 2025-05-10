@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getHouseDetail, getPayments, addOccupant, endOccupant, createPayment, updatePayment } from '@/features/house/services/house';
-import type { HouseDetail, PaymentEntry } from '@/features/house/house';
+import { getHouse, getPayments, addOccupant, endOccupant, createPayment, updatePayment } from '@/features/house/services/house';
+import type { HouseDetail, PaymentEntry } from '@/types';
+// import type { HouseDetail, PaymentEntry } from '@/features/house/house';
 
 export function useHouseDetail(id: number) {
   const [house, setHouse] = useState<HouseDetail | null>(null);
@@ -12,7 +13,7 @@ export function useHouseDetail(id: number) {
     if (!id) return;
     setLoading(true);
     // 1. Fetch main detail
-    getHouseDetail(id)
+    getHouse(id)
       .then((data) => setHouse(data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
