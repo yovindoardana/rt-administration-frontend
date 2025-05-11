@@ -5,9 +5,10 @@ import type { PaymentEntry } from '@/types/payment';
 import { paymentColumns } from './paymentColumns';
 import { updatePayment } from '../services/payment';
 import { usePayments } from '../hooks/usePayments';
+import { Pagination } from '@/components/ui/Pagination';
 
 export function PaymentTable() {
-  const { items, meta, page, setPage, loading, error } = usePayments();
+  const { items, meta, setPage, loading, error } = usePayments();
 
   const columns = useMemo<ColumnDef<PaymentEntry, any>[]>(
     () =>
@@ -43,17 +44,7 @@ export function PaymentTable() {
   return (
     <>
       <Table table={table} />
-      <div className='flex items-center justify-between mt-4'>
-        <button onClick={() => setPage(page - 1)} disabled={page <= 1} className='px-3 py-1 border rounded disabled:opacity-50'>
-          Prev
-        </button>
-        <span>
-          Halaman {meta.current_page} / {meta.last_page}
-        </span>
-        <button onClick={() => setPage(page + 1)} disabled={page >= meta.last_page} className='px-3 py-1 border rounded disabled:opacity-50'>
-          Next
-        </button>
-      </div>
+      <Pagination meta={meta} onPageChange={setPage} />
     </>
   );
 }

@@ -4,13 +4,14 @@ import { Table } from '@/components/ui/Table';
 import type { Resident } from '@/types/resident';
 import { useResidents } from '../hooks/useResident';
 import { residentColumns } from './residentColumn';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface Props {
   onView?: (id: number) => void;
 }
 
 export function ResidentTable({ onView }: Props) {
-  const { items: residents, meta, page, setPage, loading, error } = useResidents();
+  const { items: residents, meta, setPage, loading, error } = useResidents();
 
   const columns = useMemo<ColumnDef<Resident, any>[]>(
     () =>
@@ -45,17 +46,7 @@ export function ResidentTable({ onView }: Props) {
   return (
     <>
       <Table table={table} />
-      <div className='flex items-center justify-between mt-4'>
-        <button onClick={() => setPage(page - 1)} disabled={page <= 1} className='px-3 py-1 border rounded disabled:opacity-50'>
-          Prev
-        </button>
-        <span>
-          Halaman {meta.current_page} / {meta.last_page}
-        </span>
-        <button onClick={() => setPage(page + 1)} disabled={page >= meta.last_page} className='px-3 py-1 border rounded disabled:opacity-50'>
-          Next
-        </button>
-      </div>
+      <Pagination meta={meta} onPageChange={setPage} />
     </>
   );
 }

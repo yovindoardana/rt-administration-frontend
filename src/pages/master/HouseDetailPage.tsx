@@ -1,33 +1,108 @@
 // src/pages/master/HouseDetailPage.tsx
 import { useParams, useNavigate } from 'react-router-dom';
-import { Fragment, useState, type FormEvent } from 'react';
+import { useState, useMemo, type FormEvent } from 'react';
+import { useReactTable, type ColumnDef, getCoreRowModel } from '@tanstack/react-table';
 import { useHouseDetail } from '@/features/house/hooks/useHouseDetail';
+import { Table } from '@/components/ui/Table';
 import type { PaymentEntry, ResidentHistoryEntry } from '@/types';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
-import { BuildingOfficeIcon, CreditCardIcon, UserIcon, UsersIcon } from '@heroicons/react/20/solid';
-import { cn } from '@/utils';
+import { CreditCardIcon, UsersIcon } from '@heroicons/react/20/solid';
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
-
-const tabs = [
-  { name: 'Penghuni', href: '#', icon: UsersIcon },
-  { name: 'Pembayaran', href: '#', icon: CreditCardIcon },
-];
+import { Modal } from '@/components/ui/Modal';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { formatCurrency, formatDate } from '@/utils';
 
 export default function HouseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { house, payments, loading, error, onAddOccupant, onEndOccupant, onCreatePayment, onUpdatePayment } = useHouseDetail(Number(id));
 
-  // const [tab, setTab] = useState<'occupants' | 'payments'>('occupants');
-  const [occupantForm, setOccupantForm] = useState({
-    resident_id: 0,
-    start_date: new Date().toISOString().split('T')[0],
+  const [occupantForm, setOccupantForm] = useState({ resident_id: 0, start_date: new Date().toISOString().split('T')[0] });
+  const [paymentForm, setPaymentForm] = useState({ resident_id: 0, amount: 0, payment_date: new Date().toISOString().split('T')[0], status: 'unpaid' as 'paid' | 'unpaid' });
+  const [isAddOccupantModalOpen, setAddOccupantModalOpen] = useState(false);
+  const [isAddPaymentModalOpen, setAddPaymentModalOpen] = useState(false);
+
+  const occupantColumns = useMemo<ColumnDef<ResidentHistoryEntry>[]>(
+    () => [
+      {
+        accessorFn: (row) => row.resident.full_name,
+        id: 'full_name',
+        header: 'Nama',
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: 'start_date',
+        header: 'Mulai',
+        cell: (info) => (info.getValue() ? formatDate(info.getValue<string>()) : '-'),
+      },
+      {
+        accessorKey: 'end_date',
+        header: 'Selesai',
+        cell: (info) => (info.getValue() ? formatDate(info.getValue<string>()) : '-'),
+      },
+      {
+        accessorKey: 'is_current',
+        header: 'Status',
+        cell: (info) => (info.getValue() ? 'Saat Ini' : 'Selesai'),
+      },
+      {
+        id: 'aksi',
+        header: 'Aksi',
+        cell: ({ row }) =>
+          row.original.is_current ? (
+            <button onClick={() => onEndOccupant(row.original.id, new Date().toISOString().split('T')[0])} className='px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600'>
+              Selesai
+            </button>
+          ) : null,
+      },
+    ],
+    [onEndOccupant]
+  );
+
+  const paymentColumns = useMemo<ColumnDef<PaymentEntry>[]>(
+    () => [
+      {
+        accessorFn: (row) => row.resident.full_name,
+        id: 'full_name',
+        header: 'Nama',
+        cell: (info) => info.getValue(),
+      },
+      { accessorKey: 'amount', header: 'Jumlah', cell: (info) => (info.getValue() ? formatCurrency(info.getValue<number>()) : '-') },
+      { accessorKey: 'payment_date', header: 'Tanggal Pembayaran', cell: (info) => (info.getValue() ? formatDate(info.getValue<string>()) : '-') },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: (info) => {
+          const status = info.getValue<string>();
+          return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{status === 'paid' ? 'Lunas' : 'Belum Lunas'}</span>;
+        },
+      },
+      {
+        id: 'aksi',
+        header: 'Aksi',
+        cell: ({ row }) => {
+          const p = row.original;
+          return (
+            <button onClick={() => onUpdatePayment(p.id, p.status === 'paid' ? 'unpaid' : 'paid')} className='rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600'>
+              {p.status === 'paid' ? 'Batal Lunas' : 'Tandai Lunas'}
+            </button>
+          );
+        },
+      },
+    ],
+    [onUpdatePayment]
+  );
+
+  const occupantTable = useReactTable({
+    data: house?.occupant_history ?? [],
+    columns: occupantColumns,
+    getCoreRowModel: getCoreRowModel(),
   });
-  const [paymentForm, setPaymentForm] = useState({
-    resident_id: 0,
-    amount: 0,
-    payment_date: new Date().toISOString().split('T')[0],
-    status: 'unpaid' as 'paid' | 'unpaid',
+
+  const paymentTable = useReactTable({
+    data: house?.payment_history ?? [],
+    columns: paymentColumns,
+    getCoreRowModel: getCoreRowModel(),
   });
 
   const handleAddOccupant = (e: FormEvent) => {
@@ -80,158 +155,192 @@ export default function HouseDetailPage() {
         <TabPanels className='py-6'>
           {!loading && house && (
             <TabPanel>
-              <h3 className='text-lg font-medium mb-2'>History Penghuni</h3>
-              <table className='w-full table-auto border-collapse mb-4'>
-                <thead>
-                  <tr className='bg-gray-100'>
-                    <th className='border px-2 py-1'>Nama</th>
-                    <th className='border px-2 py-1'>Mulai</th>
-                    <th className='border px-2 py-1'>Selesai</th>
-                    <th className='border px-2 py-1'>Status</th>
-                    <th className='border px-2 py-1'>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {house?.occupant_history.map((e: ResidentHistoryEntry) => (
-                    <tr key={e.id} className='hover:bg-gray-50'>
-                      <td className='border px-2 py-1'>{e.resident.full_name}</td>
-                      <td className='border px-2 py-1'>{e.start_date}</td>
-                      <td className='border px-2 py-1'>{e.end_date ?? '-'}</td>
-                      <td className='border px-2 py-1 capitalize'>{e.is_current ? 'Saat Ini' : 'Selesai'}</td>
-                      <td className='border px-2 py-1'>
-                        {e.is_current && (
-                          <button onClick={() => onEndOccupant(e.id, new Date().toISOString().split('T')[0])} className='px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600'>
-                            Selesai
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {house?.occupant_history.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className='border px-2 py-1 text-center text-gray-500'>
-                        Belum ada penghuni.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-
-              <form onSubmit={handleAddOccupant} className='mb-6 space-y-2'>
-                <h4 className='font-semibold'>Tambah Penghuni</h4>
-                <div className='flex space-x-2'>
-                  <input
-                    type='number'
-                    placeholder='Resident ID'
-                    value={occupantForm.resident_id || ''}
-                    onChange={(e) =>
-                      setOccupantForm((prev) => ({
-                        ...prev,
-                        resident_id: Number(e.target.value),
-                      }))
-                    }
-                    required
-                    className='w-1/3 border px-2 py-1 rounded'
-                  />
-                  <input
-                    type='date'
-                    value={occupantForm.start_date}
-                    onChange={(e) =>
-                      setOccupantForm((prev) => ({
-                        ...prev,
-                        start_date: e.target.value,
-                      }))
-                    }
-                    required
-                    className='w-1/3 border px-2 py-1 rounded'
-                  />
-                  <button type='submit' className='px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700'>
-                    Tambah
-                  </button>
+              <div className='flex items-center justify-between mb-4'>
+                <h3 className='text-lg font-medium mb-2'>History Penghuni</h3>
+                <button onClick={() => setAddOccupantModalOpen(true)} className='inline-flex items-center rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
+                  <PlusIcon className='h-4 w-4 mr-1' />
+                  Tambah Penghuni
+                </button>
+              </div>
+              <Modal isOpen={isAddOccupantModalOpen} onClose={() => setAddOccupantModalOpen(false)} title='Tambah Penghuni'>
+                <form
+                  onSubmit={(e) => {
+                    handleAddOccupant(e);
+                    setAddOccupantModalOpen(false);
+                  }}
+                  className='space-y-2'>
+                  <div>
+                    <label htmlFor='resident_id' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Resident ID
+                    </label>
+                    <div className='mt-2'>
+                      <input
+                        type='number'
+                        name='resident_id'
+                        id='resident_id'
+                        value={occupantForm.resident_id || ''}
+                        onChange={(e) =>
+                          setOccupantForm((prev) => ({
+                            ...prev,
+                            resident_id: Number(e.target.value),
+                          }))
+                        }
+                        className='mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                        required
+                        placeholder='Resident ID'
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor='start_date' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Tanggal Mulai
+                    </label>
+                    <div className='mt-2'>
+                      <input
+                        type='date'
+                        name='start_date'
+                        id='start_date'
+                        value={occupantForm.start_date}
+                        onChange={(e) =>
+                          setOccupantForm((prev) => ({
+                            ...prev,
+                            start_date: e.target.value,
+                          }))
+                        }
+                        className='mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                        placeholder='Tanggal Mulai'
+                      />
+                    </div>
+                  </div>
+                  <div className='text-end'>
+                    <button type='submit' className='rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600'>
+                      Simpan
+                    </button>
+                  </div>
+                </form>
+              </Modal>
+              <div className='mt-8 flow-root'>
+                <div className='-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
+                  <div className='inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8'>
+                    <div className='overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg'>
+                      <Table table={occupantTable} />
+                    </div>
+                  </div>
                 </div>
-              </form>
+              </div>
             </TabPanel>
           )}
           {!loading && payments && (
             <TabPanel>
-              <section>
+              <div className='flex items-center justify-between mb-4'>
                 <h3 className='text-lg font-medium mb-2'>History Pembayaran</h3>
-                <table className='w-full table-auto border-collapse mb-4'>
-                  <thead>
-                    <tr className='bg-gray-100'>
-                      <th className='border px-2 py-1'>Nama</th>
-                      <th className='border px-2 py-1'>Jumlah</th>
-                      <th className='border px-2 py-1'>Tanggal</th>
-                      <th className='border px-2 py-1'>Status</th>
-                      <th className='border px-2 py-1'>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payments.map((p: PaymentEntry) => (
-                      <tr key={p.id} className='hover:bg-gray-50'>
-                        <td className='border px-2 py-1'>{p.resident.full_name}</td>
-                        <td className='border px-2 py-1'>{p.amount}</td>
-                        <td className='border px-2 py-1'>{p.payment_date}</td>
-                        <td className='border px-2 py-1 capitalize'>{p.status}</td>
-                        <td className='border px-2 py-1 space-x-1'>
-                          <button onClick={() => onUpdatePayment(p.id, p.status === 'paid' ? 'unpaid' : 'paid')} className='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600'>
-                            {p.status === 'paid' ? 'Batal Lunas' : 'Tandai Lunas'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {payments.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className='border px-2 py-1 text-center text-gray-500'>
-                          Belum ada pembayaran.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-
-                <form onSubmit={handleCreatePayment} className='space-y-2'>
-                  <h4 className='font-semibold'>Tambah Pembayaran</h4>
-                  <div className='flex space-x-2'>
-                    <input
-                      type='number'
-                      placeholder='Resident ID'
-                      value={paymentForm.resident_id || ''}
-                      onChange={(e) =>
-                        setPaymentForm((prev) => ({
-                          ...prev,
-                          resident_id: Number(e.target.value),
-                        }))
-                      }
-                      required
-                      className='w-1/4 border px-2 py-1 rounded'
-                    />
-                    <input
-                      type='number'
-                      placeholder='Jumlah'
-                      value={paymentForm.amount}
-                      onChange={(e) =>
-                        setPaymentForm((prev) => ({
-                          ...prev,
-                          amount: Number(e.target.value),
-                        }))
-                      }
-                      required
-                      className='w-1/4 border px-2 py-1 rounded'
-                    />
-                    <input
-                      type='date'
-                      value={paymentForm.payment_date}
-                      onChange={(e) =>
-                        setPaymentForm((prev) => ({
-                          ...prev,
-                          payment_date: e.target.value,
-                        }))
-                      }
-                      required
-                      className='w-1/4 border px-2 py-1 rounded'
-                    />
+                <button onClick={() => setAddPaymentModalOpen(true)} className='inline-flex items-center rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
+                  <PlusIcon className='h-4 w-4 mr-1' />
+                  Tambah Pembayaran
+                </button>
+              </div>
+              <Modal isOpen={isAddPaymentModalOpen} onClose={() => setAddPaymentModalOpen(false)} title='Tambah Pembayaran'>
+                <form
+                  onSubmit={(e) => {
+                    handleCreatePayment(e);
+                    setAddPaymentModalOpen(false);
+                  }}
+                  className='space-y-2'>
+                  <div>
+                    <label htmlFor='resident_id' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Resident ID
+                    </label>
+                    <div className='mt-2'>
+                      <input
+                        type='number'
+                        name='resident_id'
+                        id='resident_id'
+                        value={paymentForm.resident_id || ''}
+                        onChange={(e) =>
+                          setPaymentForm((prev) => ({
+                            ...prev,
+                            resident_id: Number(e.target.value),
+                          }))
+                        }
+                        className='mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                        required
+                        placeholder='Resident ID'
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor='amount' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Jumlah
+                    </label>
+                    <div className='mt-2'>
+                      <input
+                        type='number'
+                        name='amount'
+                        id='amount'
+                        value={paymentForm.amount || ''}
+                        onChange={(e) =>
+                          setPaymentForm((prev) => ({
+                            ...prev,
+                            amount: Number(e.target.value),
+                          }))
+                        }
+                        className='mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                        required
+                        placeholder='Jumlah'
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor='payment_date' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Tanggal Pembayaran
+                    </label>
+                    <div className='mt-2'>
+                      <input
+                        type='date'
+                        name='payment_date'
+                        id='payment_date'
+                        value={paymentForm.payment_date}
+                        onChange={(e) =>
+                          setPaymentForm((prev) => ({
+                            ...prev,
+                            payment_date: e.target.value,
+                          }))
+                        }
+                        className='mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                        required
+                        placeholder='Tanggal Pembayaran'
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor='payment_date' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Tanggal Pembayaran
+                    </label>
+                    <div className='mt-2'>
+                      <input
+                        type='date'
+                        name='payment_date'
+                        id='payment_date'
+                        value={paymentForm.payment_date}
+                        onChange={(e) =>
+                          setPaymentForm((prev) => ({
+                            ...prev,
+                            payment_date: e.target.value,
+                          }))
+                        }
+                        className='mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                        required
+                        placeholder='Tanggal Pembayaran'
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor='status' className='block text-sm font-medium leading-6 text-gray-900'>
+                      Status
+                    </label>
                     <select
+                      id='status'
+                      name='status'
                       value={paymentForm.status}
                       onChange={(e) =>
                         setPaymentForm((prev) => ({
@@ -239,16 +348,28 @@ export default function HouseDetailPage() {
                           status: e.target.value as 'paid' | 'unpaid',
                         }))
                       }
-                      className='w-1/6 border px-2 py-1 rounded'>
+                      className='mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                      defaultValue='unpaid'>
                       <option value='unpaid'>Unpaid</option>
                       <option value='paid'>Paid</option>
                     </select>
-                    <button type='submit' className='px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700'>
-                      Tambah
+                  </div>
+                  <div className='text-end'>
+                    <button type='submit' className='rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600'>
+                      Simpan
                     </button>
                   </div>
                 </form>
-              </section>
+              </Modal>
+              <div className='mt-8 flow-root'>
+                <div className='-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
+                  <div className='inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8'>
+                    <div className='overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg'>
+                      <Table table={paymentTable} />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </TabPanel>
           )}
         </TabPanels>

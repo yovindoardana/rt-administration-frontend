@@ -2,9 +2,13 @@ export const cn = (...inputs: (string | boolean | undefined)[]) => {
   return inputs.filter(Boolean).join(' ');
 };
 
-export const formatDate = (date: string | Date, options?: Intl.DateTimeFormatOptions) => {
+export const formatDate = (date: string | Date) => {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return dateObj.toLocaleDateString('id-ID', options);
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(dateObj);
 };
 
 export const formatDateTime = (date: string | Date, options?: Intl.DateTimeFormatOptions) => {

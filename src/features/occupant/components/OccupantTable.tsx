@@ -5,9 +5,10 @@ import type { ResidentHistoryEntry } from '@/types/occupant';
 import { occupantColumns } from './occupantColumns';
 import { endOccupant } from '../services/occupant';
 import { useOccupants } from '../hooks/useOccupant';
+import { Pagination } from '@/components/ui/Pagination';
 
 export function OccupantTable() {
-  const { items, meta, page, setPage, loading, error } = useOccupants();
+  const { items, meta, setPage, loading, error } = useOccupants();
 
   const columns = useMemo<ColumnDef<ResidentHistoryEntry, any>[]>(
     () =>
@@ -48,17 +49,7 @@ export function OccupantTable() {
   return (
     <>
       <Table table={table} />
-      <div className='flex items-center justify-between mt-4'>
-        <button onClick={() => setPage(page - 1)} disabled={page <= 1} className='px-3 py-1 border rounded disabled:opacity-50'>
-          Prev
-        </button>
-        <span>
-          Halaman {meta.current_page} / {meta.last_page}
-        </span>
-        <button onClick={() => setPage(page + 1)} disabled={page >= meta.last_page} className='px-3 py-1 border rounded disabled:opacity-50'>
-          Next
-        </button>
-      </div>
+      <Pagination meta={meta} onPageChange={setPage} />
     </>
   );
 }
