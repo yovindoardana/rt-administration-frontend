@@ -1,16 +1,24 @@
 // src/pages/master/HouseDetailPage.tsx
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, type FormEvent } from 'react';
+import { Fragment, useState, type FormEvent } from 'react';
 import { useHouseDetail } from '@/features/house/hooks/useHouseDetail';
 import type { PaymentEntry, ResidentHistoryEntry } from '@/types';
-// import type { PaymentEntry, ResidentHistoryEntry } from '@/features/house/house';
+import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import { BuildingOfficeIcon, CreditCardIcon, UserIcon, UsersIcon } from '@heroicons/react/20/solid';
+import { cn } from '@/utils';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
+
+const tabs = [
+  { name: 'Penghuni', href: '#', icon: UsersIcon },
+  { name: 'Pembayaran', href: '#', icon: CreditCardIcon },
+];
 
 export default function HouseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { house, payments, loading, error, onAddOccupant, onEndOccupant, onCreatePayment, onUpdatePayment } = useHouseDetail(Number(id));
 
-  const [tab, setTab] = useState<'occupants' | 'payments'>('occupants');
+  // const [tab, setTab] = useState<'occupants' | 'payments'>('occupants');
   const [occupantForm, setOccupantForm] = useState({
     resident_id: 0,
     start_date: new Date().toISOString().split('T')[0],
@@ -43,35 +51,35 @@ export default function HouseDetailPage() {
   };
 
   return (
-    <div className='p-6'>
+    <div className='px-4 sm:px-6 lg:px-8'>
       {/* Header */}
-      <div className='flex justify-between items-center mb-6'>
+      <div className='flex items-center justify-between mb-4'>
         <h1 className='text-2xl font-semibold'>Detail Rumah {house?.house_number ?? ''}</h1>
-        <button onClick={() => navigate(-1)} className='px-4 py-2 bg-gray-200 rounded hover:bg-gray-300'>
-          ← Kembali
+        <button onClick={() => navigate(-1)} className='inline-flex items-center rounded-md bg-gray-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600'>
+          <ArrowLeftIcon className='h-4 w-4 mr-1' />
+          Kembali
         </button>
       </div>
 
       {/* Status loading / error */}
       {loading && <div>Loading…</div>}
       {error && <div className='text-red-600'>{error}</div>}
-
       {/* Konten halaman */}
-      {!loading && house && (
-        <>
-          {/* Tabs */}
-          <nav className='flex space-x-4 mb-4'>
-            <button onClick={() => setTab('occupants')} className={`px-4 py-2 border-b-2 ${tab === 'occupants' ? 'border-blue-600 font-semibold' : 'border-transparent'}`}>
-              Penghuni
-            </button>
-            <button onClick={() => setTab('payments')} className={`px-4 py-2 border-b-2 ${tab === 'payments' ? 'border-blue-600 font-semibold' : 'border-transparent'}`}>
-              Pembayaran
-            </button>
-          </nav>
 
-          {/* Tab Penghuni */}
-          {tab === 'occupants' && (
-            <section>
+      <TabGroup className='border-b border-gray-200'>
+        <TabList className='-mb-px flex space-x-8' aria-label='Tabs'>
+          <Tab className='group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 data-selected:border-indigo-500 data-selected:text-indigo-600 data-selected:[&>svg]:text-indigo-600 data-hover:text-gray-700 data-hover:[&>svg]:text-gray-700 focus-visible:outline-none'>
+            <UsersIcon className='mr-2 h-5 w-5 -ml-0.5 ' />
+            Penghuni
+          </Tab>
+          <Tab className='group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium border-transparent text-gray-500 data-selected:border-indigo-500 data-selected:text-indigo-600 data-selected:[&>svg]:text-indigo-600 data-hover:text-gray-700 data-hover:[&>svg]:text-gray-700 focus-visible:outline-none'>
+            <CreditCardIcon className='mr-2 h-5 w-5 -ml-0.5 ' />
+            Pembayaran
+          </Tab>
+        </TabList>
+        <TabPanels className='py-6'>
+          {!loading && house && (
+            <TabPanel>
               <h3 className='text-lg font-medium mb-2'>History Penghuni</h3>
               <table className='w-full table-auto border-collapse mb-4'>
                 <thead>
@@ -84,7 +92,7 @@ export default function HouseDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {house.occupant_history.map((e: ResidentHistoryEntry) => (
+                  {house?.occupant_history.map((e: ResidentHistoryEntry) => (
                     <tr key={e.id} className='hover:bg-gray-50'>
                       <td className='border px-2 py-1'>{e.resident.full_name}</td>
                       <td className='border px-2 py-1'>{e.start_date}</td>
@@ -99,7 +107,7 @@ export default function HouseDetailPage() {
                       </td>
                     </tr>
                   ))}
-                  {house.occupant_history.length === 0 && (
+                  {house?.occupant_history.length === 0 && (
                     <tr>
                       <td colSpan={5} className='border px-2 py-1 text-center text-gray-500'>
                         Belum ada penghuni.
@@ -142,109 +150,109 @@ export default function HouseDetailPage() {
                   </button>
                 </div>
               </form>
-            </section>
+            </TabPanel>
           )}
-
-          {/* Tab Pembayaran */}
-          {tab === 'payments' && (
-            <section>
-              <h3 className='text-lg font-medium mb-2'>History Pembayaran</h3>
-              <table className='w-full table-auto border-collapse mb-4'>
-                <thead>
-                  <tr className='bg-gray-100'>
-                    <th className='border px-2 py-1'>Nama</th>
-                    <th className='border px-2 py-1'>Jumlah</th>
-                    <th className='border px-2 py-1'>Tanggal</th>
-                    <th className='border px-2 py-1'>Status</th>
-                    <th className='border px-2 py-1'>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((p: PaymentEntry) => (
-                    <tr key={p.id} className='hover:bg-gray-50'>
-                      <td className='border px-2 py-1'>{p.resident.full_name}</td>
-                      <td className='border px-2 py-1'>{p.amount}</td>
-                      <td className='border px-2 py-1'>{p.payment_date}</td>
-                      <td className='border px-2 py-1 capitalize'>{p.status}</td>
-                      <td className='border px-2 py-1 space-x-1'>
-                        <button onClick={() => onUpdatePayment(p.id, p.status === 'paid' ? 'unpaid' : 'paid')} className='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600'>
-                          {p.status === 'paid' ? 'Batal Lunas' : 'Tandai Lunas'}
-                        </button>
-                      </td>
+          {!loading && payments && (
+            <TabPanel>
+              <section>
+                <h3 className='text-lg font-medium mb-2'>History Pembayaran</h3>
+                <table className='w-full table-auto border-collapse mb-4'>
+                  <thead>
+                    <tr className='bg-gray-100'>
+                      <th className='border px-2 py-1'>Nama</th>
+                      <th className='border px-2 py-1'>Jumlah</th>
+                      <th className='border px-2 py-1'>Tanggal</th>
+                      <th className='border px-2 py-1'>Status</th>
+                      <th className='border px-2 py-1'>Aksi</th>
                     </tr>
-                  ))}
-                  {payments.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className='border px-2 py-1 text-center text-gray-500'>
-                        Belum ada pembayaran.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {payments.map((p: PaymentEntry) => (
+                      <tr key={p.id} className='hover:bg-gray-50'>
+                        <td className='border px-2 py-1'>{p.resident.full_name}</td>
+                        <td className='border px-2 py-1'>{p.amount}</td>
+                        <td className='border px-2 py-1'>{p.payment_date}</td>
+                        <td className='border px-2 py-1 capitalize'>{p.status}</td>
+                        <td className='border px-2 py-1 space-x-1'>
+                          <button onClick={() => onUpdatePayment(p.id, p.status === 'paid' ? 'unpaid' : 'paid')} className='px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600'>
+                            {p.status === 'paid' ? 'Batal Lunas' : 'Tandai Lunas'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {payments.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className='border px-2 py-1 text-center text-gray-500'>
+                          Belum ada pembayaran.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
 
-              <form onSubmit={handleCreatePayment} className='space-y-2'>
-                <h4 className='font-semibold'>Tambah Pembayaran</h4>
-                <div className='flex space-x-2'>
-                  <input
-                    type='number'
-                    placeholder='Resident ID'
-                    value={paymentForm.resident_id || ''}
-                    onChange={(e) =>
-                      setPaymentForm((prev) => ({
-                        ...prev,
-                        resident_id: Number(e.target.value),
-                      }))
-                    }
-                    required
-                    className='w-1/4 border px-2 py-1 rounded'
-                  />
-                  <input
-                    type='number'
-                    placeholder='Jumlah'
-                    value={paymentForm.amount}
-                    onChange={(e) =>
-                      setPaymentForm((prev) => ({
-                        ...prev,
-                        amount: Number(e.target.value),
-                      }))
-                    }
-                    required
-                    className='w-1/4 border px-2 py-1 rounded'
-                  />
-                  <input
-                    type='date'
-                    value={paymentForm.payment_date}
-                    onChange={(e) =>
-                      setPaymentForm((prev) => ({
-                        ...prev,
-                        payment_date: e.target.value,
-                      }))
-                    }
-                    required
-                    className='w-1/4 border px-2 py-1 rounded'
-                  />
-                  <select
-                    value={paymentForm.status}
-                    onChange={(e) =>
-                      setPaymentForm((prev) => ({
-                        ...prev,
-                        status: e.target.value as 'paid' | 'unpaid',
-                      }))
-                    }
-                    className='w-1/6 border px-2 py-1 rounded'>
-                    <option value='unpaid'>Unpaid</option>
-                    <option value='paid'>Paid</option>
-                  </select>
-                  <button type='submit' className='px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700'>
-                    Tambah
-                  </button>
-                </div>
-              </form>
-            </section>
+                <form onSubmit={handleCreatePayment} className='space-y-2'>
+                  <h4 className='font-semibold'>Tambah Pembayaran</h4>
+                  <div className='flex space-x-2'>
+                    <input
+                      type='number'
+                      placeholder='Resident ID'
+                      value={paymentForm.resident_id || ''}
+                      onChange={(e) =>
+                        setPaymentForm((prev) => ({
+                          ...prev,
+                          resident_id: Number(e.target.value),
+                        }))
+                      }
+                      required
+                      className='w-1/4 border px-2 py-1 rounded'
+                    />
+                    <input
+                      type='number'
+                      placeholder='Jumlah'
+                      value={paymentForm.amount}
+                      onChange={(e) =>
+                        setPaymentForm((prev) => ({
+                          ...prev,
+                          amount: Number(e.target.value),
+                        }))
+                      }
+                      required
+                      className='w-1/4 border px-2 py-1 rounded'
+                    />
+                    <input
+                      type='date'
+                      value={paymentForm.payment_date}
+                      onChange={(e) =>
+                        setPaymentForm((prev) => ({
+                          ...prev,
+                          payment_date: e.target.value,
+                        }))
+                      }
+                      required
+                      className='w-1/4 border px-2 py-1 rounded'
+                    />
+                    <select
+                      value={paymentForm.status}
+                      onChange={(e) =>
+                        setPaymentForm((prev) => ({
+                          ...prev,
+                          status: e.target.value as 'paid' | 'unpaid',
+                        }))
+                      }
+                      className='w-1/6 border px-2 py-1 rounded'>
+                      <option value='unpaid'>Unpaid</option>
+                      <option value='paid'>Paid</option>
+                    </select>
+                    <button type='submit' className='px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700'>
+                      Tambah
+                    </button>
+                  </div>
+                </form>
+              </section>
+            </TabPanel>
           )}
-        </>
-      )}
+        </TabPanels>
+      </TabGroup>
     </div>
   );
 }
