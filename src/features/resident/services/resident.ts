@@ -1,5 +1,5 @@
-// src/features/resident/services/resident.ts
 import api from '@/services/api';
+import type { PaginationLinks, PaginationMeta } from '@/types';
 import type { ResidentsResponse, ResidentDetailResponse, Resident, CreateResidentPayload, UpdateResidentPayload } from '@/types/resident';
 
 export const getResidents = (page = 1) => api.get<ResidentsResponse>('/api/residents', { params: { page } }).then((res) => res.data);
@@ -13,6 +13,15 @@ export const updateResident = (id: number, payload: UpdateResidentPayload) => ap
 export const deleteResident = (id: number) => api.delete(`/api/residents/${id}`);
 
 export const residentService = {
-  listAll: () => api.get<Resident[]>('/api/residents').then((res) => res.data),
-  available: () => api.get<{ data: Resident[] }>('/api/residents/available').then((res) => res.data.data),
+  listAll: (): Promise<Resident[]> => api.get<Resident[]>('/api/residents').then((res) => res.data),
+
+  available: (): Promise<Resident[]> => api.get<{ data: Resident[] }>('/api/residents/available').then((res) => res.data.data),
+
+  list: (
+    page: number
+  ): Promise<{
+    data: Resident[];
+    meta: PaginationMeta;
+    links: PaginationLinks;
+  }> => api.get(`/api/residents?page=${page}`).then((res) => res.data),
 };

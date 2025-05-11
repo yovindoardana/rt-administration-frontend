@@ -2,36 +2,50 @@ import { useState } from 'react';
 import { ResidentTable } from '@/features/resident/components/ResidentTable';
 import { ResidentForm } from '@/features/resident/components/ResidentForm';
 import { useResidentDetail } from '@/features/resident/hooks/useResidentDetail';
+import { Modal } from '@/components/ui/Modal';
+import { useResidents } from '@/features/resident/hooks/useResident';
 
 export default function ResidentPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+
   const { resident: editingResident, loading: detailLoading } = useResidentDetail(editingId);
+  const { refresh } = useResidents();
 
   const onSaved = () => {
     setEditingId(null);
+    setShowCreate(false);
+    setShowEdit(false);
+    refresh();
   };
 
   return (
-    <div className='p-6'>
-      <h1 className='text-2xl font-semibold mb-4'>Master Penghuni</h1>
-
-      {/* Form tambah */}
-      <div className='mb-6'>
-        <ResidentForm onSaved={onSaved} />
+    <div className='px-4 sm:px-6 lg:px-8'>
+      <div className='flex items-center justify-between py-4'>
+        <h1 className='text-2xl font-semibold'>Master Penghuni</h1>
+        <button onClick={() => setShowCreate(true)} className='rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50'>
+          Tambah Penghuni
+        </button>
       </div>
 
-      {/* Tabel */}
-      <ResidentTable onView={(id) => setEditingId(id)} />
+      <ResidentTable
+        onEdit={(r) => {
+          setEditingId(r.id);
+          setShowEdit(true);
+        }}
+      />
 
-      {/* Form edit */}
-      {editingId !== null && (
-        <div className='mt-6 p-4 border rounded bg-gray-50'>
-          <h2 className='font-semibold mb-2'>Edit Penghuni</h2>
+      {/* Modal tambah */}
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title='Tambah Penghuni'>
+        <ResidentForm onSaved={onSaved} />
+      </Modal>
 
-          {detailLoading && <div>Loading detail…</div>}
-          {!detailLoading && editingResident && <ResidentForm initial={editingResident} onSaved={onSaved} />}
-        </div>
-      )}
+      {/* Modal edit */}
+      <Modal isOpen={showEdit} onClose={() => setShowEdit(false)} title='Edit Penghuni'>
+        {detailLoading && <div>Loading detail…</div>}
+        {!detailLoading && editingResident && <ResidentForm initial={editingResident} onSaved={onSaved} />}
+      </Modal>
     </div>
   );
 }
