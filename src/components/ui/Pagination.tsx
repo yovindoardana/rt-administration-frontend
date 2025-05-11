@@ -9,7 +9,7 @@ interface Props {
 
 export function Pagination({ meta, onPageChange }: Props) {
   return (
-    <div className='flex items-center justify-between border-t border-gray-200 py-3'>
+    <div className='flex items-center justify-between py-3'>
       {/* MOBILE */}
       <div className='flex flex-1 justify-between sm:hidden'>
         {/* Prev */}
@@ -20,8 +20,7 @@ export function Pagination({ meta, onPageChange }: Props) {
             const prevPage = getPageFromUrl(meta.links[0].url);
             if (prevPage) onPageChange(prevPage);
           }}
-          className='relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50'
-          aria-disabled={!meta.links[0].url}>
+          className='relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50'>
           Previous
         </a>
 
@@ -33,8 +32,7 @@ export function Pagination({ meta, onPageChange }: Props) {
             const nextPage = getPageFromUrl(meta.links[meta.links.length - 1].url);
             if (nextPage) onPageChange(nextPage);
           }}
-          className='relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50'
-          aria-disabled={!meta.links[meta.links.length - 1].url}>
+          className='relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50'>
           Next
         </a>
       </div>

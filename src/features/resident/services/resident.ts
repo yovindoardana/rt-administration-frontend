@@ -11,3 +11,8 @@ export const createResident = (payload: CreateResidentPayload) => api.post<{ dat
 export const updateResident = (id: number, payload: UpdateResidentPayload) => api.put<{ data: Resident }>(`/api/residents/${id}`, payload).then((res) => res.data.data);
 
 export const deleteResident = (id: number) => api.delete(`/api/residents/${id}`);
+
+export const residentService = {
+  listAll: () => api.get<Resident[]>('/api/residents').then((res) => res.data),
+  available: () => api.get<{ data: Resident[] }>('/api/residents/available').then((res) => res.data.data),
+};

@@ -1,14 +1,24 @@
-import { getPayments } from '@/features/payment/services/payment';
+import { useCallback } from 'react';
 import { usePaginated } from '@/hooks/usePaginated';
-import type { PaymentEntry, PaymentsResponse } from '@/types/payment';
+import type { PaymentEntry } from '@/types/payment';
+import type { PaginatedResponse } from '@/types/common';
+import { paymentService } from '../services/payment';
 
-export function usePayments(initialPage = 1) {
-  return usePaginated<PaymentEntry, PaymentsResponse>(
-    getPayments,
-    (response) => ({
-      data: response.data,
-      meta: response.meta,
+interface UsePaymentsParams {
+  house_id: number;
+  initialPage?: number;
+}
+
+export function usePayments({ house_id, initialPage = 1 }: UsePaymentsParams) {
+  const fetcher = useCallback((page: number) => paymentService.list(house_id, page), [house_id]);
+
+  const selector = useCallback(
+    (res: PaginatedResponse<PaymentEntry>) => ({
+      data: res.data,
+      meta: res.meta,
     }),
-    initialPage
+    []
   );
+
+  return usePaginated<PaymentEntry, PaginatedResponse<PaymentEntry>>(fetcher, selector, initialPage);
 }

@@ -1,26 +1,27 @@
+import { useMemo } from 'react';
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table';
 import { Table } from '@/components/ui/Table';
-import { useHouses } from '../hooks/useHouses';
-import { getHouseColumns } from './houseColumns';
 import { Pagination } from '@/components/ui/Pagination';
-import type { House } from '@/types';
+import type { House } from '@/types/house';
+import { getHouseColumns } from './houseColumns';
+import type { PaginationMeta } from '@/types/common';
 
 interface Props {
+  data: House[];
+  meta: PaginationMeta;
+  onPageChange: (page: number) => void;
   onEdit: (house: House) => void;
+  onRemove: (id: number) => void;
 }
 
-export function HouseTable({ onEdit }: Props) {
-  const { items: houses, meta, setPage, loading, error } = useHouses();
+export function HouseTable({ data: houses, meta, onPageChange, onEdit, onRemove }: Props) {
+  const columns = useMemo(() => getHouseColumns(onEdit, onRemove), [onEdit, onRemove]);
 
   const table = useReactTable<House>({
     data: houses,
-    columns: getHouseColumns(onEdit),
+    columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  if (loading) return <div>Loading…</div>;
-  if (error) return <div className='text-red-600'>{error}</div>;
-  if (!houses.length) return <div>Tidak ada rumah.</div>;
 
   return (
     <div className='mt-8 flow-root'>
@@ -29,7 +30,9 @@ export function HouseTable({ onEdit }: Props) {
           <div className='overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg'>
             <Table table={table} />
           </div>
-          <Pagination meta={meta} onPageChange={setPage} />
+          <div className='mt-4 sm:px-6 lg:px-8'>
+            <Pagination meta={meta} onPageChange={onPageChange} />
+          </div>
         </div>
       </div>
     </div>

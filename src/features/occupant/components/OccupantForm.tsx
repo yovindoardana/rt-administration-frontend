@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { addOccupant } from '../services/occupant';
 import type { CreateOccupantPayload } from '@/types/occupant';
+import { addOccupant } from '@/features/house/services/house';
 
 export function OccupantForm({ onAdded }: { onAdded?: () => void }) {
   const [form, setForm] = useState<CreateOccupantPayload>({
@@ -11,7 +11,7 @@ export function OccupantForm({ onAdded }: { onAdded?: () => void }) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    addOccupant(form).then(() => {
+    addOccupant(form.house_id, form).then(() => {
       setForm({ ...form, house_id: 0, resident_id: 0 });
       onAdded?.();
     });

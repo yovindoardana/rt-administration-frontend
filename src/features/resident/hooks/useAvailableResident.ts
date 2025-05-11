@@ -1,11 +1,10 @@
-// src/features/resident/hooks/useResidents.ts
 import { useQuery } from '@tanstack/react-query';
 import type { Resident } from '@/types/resident';
 import { residentService } from '../services/resident';
 
-export function useResidents() {
+export function useAvailableResidents() {
   return useQuery<Resident[], Error>({
-    queryKey: ['residents'],
-    queryFn: () => residentService.listAll(),
+    queryKey: ['residents', 'available'],
+    queryFn: residentService.available,
   });
 }

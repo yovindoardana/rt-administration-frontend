@@ -1,9 +1,16 @@
-// src/features/occupant/services/occupant.ts
+// src/features/occupant/services/occupantService.ts
 import api from '@/services/api';
-import type { OccupantsResponse, ResidentHistoryEntry, CreateOccupantPayload, UpdateOccupantPayload } from '@/types/occupant';
+import type { ResidentHistoryEntry } from '@/types/occupant';
+import type { PaginatedResponse } from '@/types/common';
 
-export const getOccupants = (page = 1) => api.get<OccupantsResponse>('/api/resident-house-histories', { params: { page } }).then((res) => res.data);
-
-export const addOccupant = (payload: CreateOccupantPayload) => api.post<{ data: ResidentHistoryEntry }>('/api/resident-house-histories', payload).then((res) => res.data.data);
-
-export const endOccupant = (id: number, payload: UpdateOccupantPayload) => api.put<{ data: ResidentHistoryEntry }>(`/api/resident-house-histories/${id}`, payload).then((res) => res.data.data);
+export const occupantService = {
+  list(houseId: number, page: number) {
+    return api.get<PaginatedResponse<ResidentHistoryEntry>>(`/api/houses/${houseId}/occupants`, { params: { page } }).then((res) => res.data);
+  },
+  create(houseId: number, payload: { resident_id: number; start_date: string }) {
+    return api.post<ResidentHistoryEntry>(`/api/houses/${houseId}/occupants`, payload).then((res) => res.data);
+  },
+  end(historyId: number, end_date: string) {
+    return api.patch<ResidentHistoryEntry>(`/api/resident-house-histories/${historyId}`, { end_date }).then((res) => res.data);
+  },
+};

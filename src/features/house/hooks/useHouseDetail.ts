@@ -1,54 +1,58 @@
-import { useState, useEffect } from 'react';
-import { getHouse, getPayments, addOccupant, endOccupant, createPayment, updatePayment } from '@/features/house/services/house';
-import type { HouseDetail, PaymentEntry } from '@/types';
-// import type { HouseDetail, PaymentEntry } from '@/features/house/house';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/services/api';
+import type { HouseDetail } from '@/types/house';
+import { useOccupants } from '@/features/occupant/hooks/useOccupant';
+import { usePayments } from '@/features/payment/hooks/usePayments';
+import { occupantService } from '@/features/occupant/services/occupant';
+import { paymentService } from '@/features/payment/services/payment';
 
-export function useHouseDetail(id: number) {
-  const [house, setHouse] = useState<HouseDetail | null>(null);
-  const [payments, setPayments] = useState<PaymentEntry[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+export function useHouseDetail(houseId: number) {
+  const detailQ = useQuery<HouseDetail, Error>({
+    queryKey: ['house', houseId],
+    queryFn: () => api.get<HouseDetail>(`/api/houses/${houseId}`).then((r) => r.data),
+  });
 
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    // 1. Fetch main detail
-    getHouse(id)
-      .then((data) => setHouse(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-    // 2. Fetch payments
-    getPayments(id)
-      .then(setPayments)
-      .catch((err) => console.error(err));
-  }, [id]);
+  const occQ = useOccupants({ house_id: houseId, initialPage: 1 });
 
-  // 3. Actions untuk occupant & payment
-  const onAddOccupant = (resident_id: number, start_date: string) => addOccupant(id, { resident_id, start_date }).then((entry) => setHouse((h) => (h ? { ...h, occupant_history: [entry, ...h.occupant_history] } : h)));
+  const payQ = usePayments({ house_id: houseId, initialPage: 1 });
 
-  const onEndOccupant = (historyId: number, end_date: string) =>
-    endOccupant(id, historyId, { end_date }).then((updated) =>
-      setHouse((h) =>
-        h
-          ? {
-              ...h,
-              occupant_history: h.occupant_history.map((e) => (e.id === updated.id ? updated : e)),
-            }
-          : h
-      )
-    );
-
-  const onCreatePayment = (resident_id: number, amount: number, payment_date: string, status: 'paid' | 'unpaid') => createPayment(id, { resident_id, amount, payment_date, status }).then((entry) => setPayments((ps) => [entry, ...ps]));
-
-  const onUpdatePayment = (paymentId: number, status: 'paid' | 'unpaid') => updatePayment(id, paymentId, { status }).then((updated) => setPayments((ps) => ps.map((p) => (p.id === updated.id ? updated : p))));
+  async function onAddOccupant(resident_id: number, start_date: string) {
+    await occupantService.create(houseId, { resident_id, start_date });
+    await occQ.refetch();
+  }
+  async function onEndOccupant(historyId: number, end_date: string) {
+    await occupantService.end(historyId, end_date);
+    await occQ.refetch();
+  }
+  async function onCreatePayment(resident_id: number, amount: number, payment_date: string, status: 'paid' | 'unpaid') {
+    await paymentService.create(houseId, { resident_id, amount, payment_date, status });
+    await payQ.refetch();
+  }
+  async function onUpdatePayment(id: number, status: 'paid' | 'unpaid') {
+    await paymentService.updateStatus(id, status);
+    await payQ.refetch();
+  }
 
   return {
-    house,
-    payments,
-    loading,
-    error,
+    house: detailQ.data,
+    loading: detailQ.isLoading,
+    error: detailQ.error,
+
+    occupantHistory: occQ.data,
+    occupantMeta: occQ.meta,
+    occupantPage: occQ.page,
+    setOccupantPage: occQ.setPage,
+    occLoading: occQ.loading,
+    occError: occQ.error,
     onAddOccupant,
     onEndOccupant,
+
+    paymentHistory: payQ.data,
+    paymentMeta: payQ.meta,
+    paymentPage: payQ.page,
+    setPaymentPage: payQ.setPage,
+    payLoading: payQ.loading,
+    payError: payQ.error,
     onCreatePayment,
     onUpdatePayment,
   };

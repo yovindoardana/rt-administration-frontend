@@ -26,7 +26,18 @@ export default function LoginPage() {
       await login(form);
       nav('/');
     } catch (error: any) {
-      setErr(error.response?.data?.message || 'Login failed');
+      if (error.response?.status === 422) {
+        setErr('Email atau password tidak valid');
+      }
+      if (error.response?.status === 401) {
+        setErr('Email atau password tidak valid');
+      }
+      if (error.response?.status === 403) {
+        setErr('Akun Anda belum aktif');
+      }
+      if (error.response?.status === 500) {
+        setErr('Terjadi kesalahan pada server');
+      }
     }
   };
 

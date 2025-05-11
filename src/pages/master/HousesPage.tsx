@@ -1,49 +1,58 @@
-import { useState, useCallback } from 'react';
-import { PlusIcon } from '@heroicons/react/24/solid';
+import { useState } from 'react';
+import { useHouses } from '@/features/house/hooks/useHouses';
 import { HouseTable } from '@/features/house/components/HouseTable';
 import { HouseFormModal } from '@/features/house/components/HouseFormModal';
 import type { House, CreateHousePayload } from '@/types/house';
-import { useCreateHouse } from '@/features/house/hooks/useCreateHouse';
-import { useUpdateHouse } from '@/features/house/hooks/useUpdateHouse';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function HousesPage() {
   const [isFormOpen, setFormOpen] = useState(false);
-  const [editingHouse, setEditingHouse] = useState<House | null>(null);
+  const [editingHouse, setEditingHouse] = useState<House | undefined>();
 
-  const createMut = useCreateHouse();
-  const updateMut = useUpdateHouse();
+  const { data: houses = [], meta, setPage, loading, error, onCreate, onUpdate, onRemove } = useHouses();
 
-  const openCreate = () => {
-    setEditingHouse(null);
+  const openAdd = () => {
+    setEditingHouse(undefined);
     setFormOpen(true);
   };
-  const handleCreate = (vals: CreateHousePayload) => createMut.mutate(vals, { onSuccess: () => setFormOpen(false) });
 
-  const openEdit = useCallback((h: House) => {
-    setEditingHouse(h);
+  const openEdit = (house: House) => {
+    setEditingHouse(house);
     setFormOpen(true);
-  }, []);
-  const handleUpdate = (vals: CreateHousePayload) => editingHouse && updateMut.mutate({ id: editingHouse.id, data: vals }, { onSuccess: () => setFormOpen(false) });
+  };
 
-  const isLoading = createMut.isPending || updateMut.isPending;
-  const error = createMut.error ?? updateMut.error ?? undefined;
+  const handleClose = () => setFormOpen(false);
+
+  const handleSubmit = async (vals: CreateHousePayload) => {
+    if (editingHouse) {
+      await onUpdate(editingHouse.id, vals);
+    } else {
+      await onCreate(vals);
+    }
+    setFormOpen(false);
+  };
 
   return (
     <div className='px-4 sm:px-6 lg:px-8'>
-      {/* Header */}
-      <div className='flex items-center justify-between mb-4'>
+      {/* Header + tombol Tambah */}
+      <div className='flex items-center justify-between py-4'>
         <h1 className='text-2xl font-semibold'>Daftar Rumah</h1>
-        <button onClick={openCreate} className='inline-flex items-center rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
-          <PlusIcon className='h-4 w-4 mr-1' />
+        <button onClick={openAdd} className='rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50'>
           Tambah Rumah
         </button>
       </div>
 
-      {/* Table dengan tombol Edit */}
-      <HouseTable onEdit={openEdit} />
+      {loading && (
+        <div className='flex items-center justify-between py-4'>
+          <ArrowPathIcon className='animate-spin h-12 w-12 text-indigo-600 mx-auto' />
+        </div>
+      )}
+      {error && <div className='text-red-500 text-center py-4'>Error: {error}</div>}
+      {!loading && !houses.length && <div className='text-center py-4'>Tidak ada data rumah</div>}
+      {!loading && !error && houses.length > 0 && <HouseTable data={houses} meta={meta} onPageChange={setPage} onEdit={openEdit} onRemove={onRemove} />}
 
-      {/* Modal form untuk Create & Edit */}
-      <HouseFormModal isOpen={isFormOpen} initialValues={editingHouse ? { house_number: editingHouse.house_number, status: editingHouse.status } : undefined} onClose={() => setFormOpen(false)} onSubmit={editingHouse ? handleUpdate : handleCreate} isLoading={isLoading} error={error} />
+      {/* Form Modal */}
+      <HouseFormModal isOpen={isFormOpen} initialValues={editingHouse ? { house_number: editingHouse.house_number, status: editingHouse.status } : undefined} onClose={handleClose} onSubmit={handleSubmit} isLoading={loading} error={error ?? undefined} />
     </div>
   );
 }

@@ -1,11 +1,6 @@
-import type { PaginationMeta } from '@/types';
-import { useState, useEffect } from 'react';
-
-export interface PaginationLink {
-  url: string | null;
-  label: string;
-  active: boolean;
-}
+// src/hooks/usePaginated.ts
+import type { PaginationMeta } from '@/types/common';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -17,22 +12,36 @@ export interface PaginatedResult<T> {
  */
 export function usePaginated<T, R>(fetcher: (page: number) => Promise<R>, selector: (res: R) => PaginatedResult<T>, initialPage = 1) {
   const [page, setPage] = useState(initialPage);
-  const [items, setItems] = useState<T[]>([]);
-  const [meta, setMeta] = useState<PaginationMeta>({ current_page: 1, from: 0, to: 0, last_page: 1, per_page: 0, total: 0, path: '', links: [] });
+  const [data, setData] = useState<T[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta>({
+    current_page: initialPage,
+    from: 0,
+    to: 0,
+    last_page: 1,
+    per_page: 0,
+    total: 0,
+    path: '',
+    links: [],
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchPage = useCallback(() => {
     setLoading(true);
-    fetcher(page)
+    setError(null);
+    return fetcher(page)
       .then((res) => {
-        const { data, meta } = selector(res);
-        setItems(data);
+        const { data: list, meta } = selector(res);
+        setData(list);
         setMeta(meta);
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err.message ?? err.toString()))
       .finally(() => setLoading(false));
-  }, [page]);
+  }, [fetcher, selector, page]);
 
-  return { page, setPage, items, meta, loading, error };
+  useEffect(() => {
+    fetchPage();
+  }, [fetchPage]);
+
+  return { page, setPage, data, meta, loading, error, refetch: fetchPage };
 }

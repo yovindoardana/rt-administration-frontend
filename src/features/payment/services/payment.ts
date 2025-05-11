@@ -1,9 +1,24 @@
-// src/features/payment/services/payment.ts
+// src/features/payment/services/paymentService.ts
 import api from '@/services/api';
-import type { PaymentsResponse, PaymentEntry, CreatePaymentPayload, UpdatePaymentPayload } from '@/types/payment';
+import type { PaymentEntry } from '@/types/payment';
+import type { PaginatedResponse } from '@/types/common';
 
-export const getPayments = (page = 1) => api.get<PaymentsResponse>('/api/payments', { params: { page } }).then((res) => res.data);
-
-export const createPayment = (payload: CreatePaymentPayload) => api.post<{ data: PaymentEntry }>('/api/payments', payload).then((res) => res.data.data);
-
-export const updatePayment = (id: number, payload: UpdatePaymentPayload) => api.put<{ data: PaymentEntry }>(`/api/payments/${id}`, payload).then((res) => res.data.data);
+export const paymentService = {
+  list(houseId: number, page: number) {
+    return api.get<PaginatedResponse<PaymentEntry>>(`/api/houses/${houseId}/payments`, { params: { page } }).then((res) => res.data);
+  },
+  create(
+    houseId: number,
+    payload: {
+      resident_id: number;
+      amount: number;
+      payment_date: string;
+      status: 'paid' | 'unpaid';
+    }
+  ) {
+    return api.post<PaymentEntry>(`/api/houses/${houseId}/payments`, payload).then((res) => res.data);
+  },
+  updateStatus(paymentId: number, status: 'paid' | 'unpaid') {
+    return api.patch<PaymentEntry>(`/api/payments/${paymentId}`, { status }).then((res) => res.data);
+  },
+};
